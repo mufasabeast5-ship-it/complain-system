@@ -23,11 +23,8 @@ RUN sed -i 's|/var/www/html|/var/www/html/api|g' /etc/apache2/sites-available/00
 # Allow .htaccess overrides in the api folder
 RUN sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
 
-# Set default port (Railway overrides this with its own $PORT)
+# Default port (Railway overrides this at runtime via $PORT)
 ENV PORT=80
-
-# Configure Apache to listen on $PORT
-RUN sed -i 's/80/${PORT}/g' /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
 
 # Copy custom entrypoint
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
