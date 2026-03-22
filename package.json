@@ -1,0 +1,8 @@
+{
+  "name": "complain-system-api",
+  "version": "1.0.0",
+  "description": "Complaint Management System PHP API",
+  "scripts": {
+    "dev": "php -S localhost:8000 -t api"
+  }
+}
