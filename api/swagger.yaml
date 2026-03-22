@@ -1,0 +1,258 @@
+openapi: 3.0.0
+info:
+  title: CareConnect Complaint System API
+  version: 1.0.0
+  description: Documentation for the CareConnect Complaint System.
+servers:
+  - url: http://localhost:8000/api
+    description: Local Dev Server
+  - url: https://complain-system-production.up.railway.app
+    description: Production Server
+
+tags:
+  - name: Authentication
+    description: User login and registration
+  - name: Complaints
+    description: Managing complaints and replies
+
+paths:
+  /signup.php:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, name, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                name:
+                  type: string
+                password:
+                  type: string
+                role:
+                  type: string
+                  enum: [user, admin]
+                  default: user
+      responses:
+        '200':
+          description: Successful registration
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  error:
+                    type: string
+
+  /login.php:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  error:
+                    type: string
+
+  /get_complaints.php:
+    get:
+      tags:
+        - Complaints
+      summary: Get all complaints (Admin)
+      responses:
+        '200':
+          description: List of complaints
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  complaints:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Complaint'
+
+  /get_user_complaints.php:
+    get:
+      tags:
+        - Complaints
+      summary: Get complaints for a specific user
+      parameters:
+        - name: user_id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of user complaints
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  complaints:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Complaint'
+
+  /add_complaint.php:
+    post:
+      tags:
+        - Complaints
+      summary: Add a new complaint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id, title, description, category]
+              properties:
+                user_id:
+                  type: integer
+                title:
+                  type: string
+                description:
+                  type: string
+                category:
+                  type: string
+                  enum: [Service, Product, Billing, Technical, Other]
+      responses:
+        '200':
+          description: Complaint added
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  error:
+                    type: string
+
+  /update_status.php:
+    post:
+      tags:
+        - Complaints
+      summary: Update complaint status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id, status]
+              properties:
+                id:
+                  type: integer
+                status:
+                  type: string
+                  enum: [Pending, In Progress, Resolved]
+      responses:
+        '200':
+          description: Status updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  error:
+                    type: string
+
+  /reply_complaint.php:
+    post:
+      tags:
+        - Complaints
+      summary: Reply to a complaint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id, reply]
+              properties:
+                id:
+                  type: integer
+                reply:
+                  type: string
+      responses:
+        '200':
+          description: Reply added
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  error:
+                    type: string
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+    Complaint:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        status:
+          type: string
+        reply:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
