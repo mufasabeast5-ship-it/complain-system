@@ -13,10 +13,17 @@ RUN rm -f /etc/apache2/mods-enabled/mpm_*.load \
     ln -s /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load && \
     ln -s /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf
 
-# Set document root
-ENV APACHE_DOCUMENT_ROOT /var/www/html
+# Suppress ServerName warning
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-# Set default port (Railway overrides this)
+# Point document root directly to the api/ subfolder
+ENV APACHE_DOCUMENT_ROOT /var/www/html/api
+RUN sed -i 's|/var/www/html|/var/www/html/api|g' /etc/apache2/sites-available/000-default.conf
+
+# Allow .htaccess overrides in the api folder
+RUN sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
+
+# Set default port (Railway overrides this with its own $PORT)
 ENV PORT=80
 
 # Configure Apache to listen on $PORT
