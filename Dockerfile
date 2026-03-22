@@ -33,4 +33,10 @@ RUN sed -i 's/80/${PORT}/g' /etc/apache2/sites-available/000-default.conf /etc/a
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
+# Copy all project files into the container
+COPY . /var/www/html
+
+# Fix file permissions
+RUN chown -R www-data:www-data /var/www/html
+
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
